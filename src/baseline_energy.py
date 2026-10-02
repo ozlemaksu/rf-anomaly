@@ -44,7 +44,7 @@ def main():
     p.add_argument("--tag", default="baseline_energy")
     a = p.parse_args()
 
-    X = np.load(a.x)
+    X = np.load(a.x, mmap_mode="r")  # diske eslenir, tamami belleğe alinmaz
     y = np.load(a.y).astype(np.int64)
     sp = np.load(a.splits)
     va, te = sp["val_idx"], sp["test_idx"]

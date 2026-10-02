@@ -27,6 +27,20 @@ from torch.utils.data import DataLoader, TensorDataset
 from models import CNN1D, CNN2D
 
 
+def channel_stats(X, idx, axes, chunk=64):
+    """Kanal basina ortalama ve std; yalnizca verilen (egitim) indekslerinden, parca parca (float64)."""
+    s1 = s2 = 0.0
+    n = 0
+    for k in range(0, len(idx), chunk):
+        b = np.asarray(X[idx[k:k + chunk]], dtype=np.float64)
+        s1 = s1 + b.sum(axis=axes, keepdims=True)
+        s2 = s2 + (b * b).sum(axis=axes, keepdims=True)
+        n += b.size // s1.size
+    mu = s1 / n
+    sd = np.sqrt(np.maximum(s2 / n - mu ** 2, 0.0)) + 1e-8
+    return mu.astype(np.float32), sd.astype(np.float32)
+
+
 def make_loader(X, y, bs, shuffle, drop_last=False):
     ds = TensorDataset(torch.from_numpy(X), torch.from_numpy(y))
     return DataLoader(ds, batch_size=bs, shuffle=shuffle, drop_last=drop_last)
@@ -81,7 +95,7 @@ def main():
     np.random.seed(a.seed)
     dev = "cuda" if torch.cuda.is_available() else "cpu"
 
-    X = np.load(a.x).astype(np.float32)
+    X = np.load(a.x, mmap_mode="r")  # diske eslenir; yalnizca bolmeler belleğe alinir
     y = np.load(a.y).astype(np.int64)
     sp = np.load(a.splits)
     tr, va, te = sp["train_idx"], sp["val_idx"], sp["test_idx"]
@@ -101,14 +115,29 @@ def main():
             raise SystemExit(f"{name}_idx bos veya aralik disi. Once: python src/check_data.py")
 
     if a.subset:
-        tr = tr[: a.subset]
-        print(f"SUBSET modu: yalnizca {len(tr)} egitim ornegi")
+        # Sinif dengeli rastgele alt kume (indeksler dosya sirasina gore dizili, ilk N hep tek sinif olabilir)
+        rs = np.random.RandomState(a.seed)
+        per = max(1, a.subset // 2)
+        pick = []
+        for c in (0, 1):
+            pool = tr[y[tr] == c]
+            pick.append(rs.choice(pool, size=min(per, len(pool)), replace=False))
+        tr = np.sort(np.concatenate(pick))
+        print(f"SUBSET modu: {len(tr)} egitim ornegi (sinif basina en cok {per})")
 
     # Normalizasyon istatistigi yalnizca egitim setinden (sizintiyi onler)
     axes = (0, 2) if a.model == "cnn1d" else (0, 2, 3)
-    mu = X[tr].mean(axis=axes, keepdims=True)
-    sd = X[tr].std(axis=axes, keepdims=True) + 1e-8
-    X = ((X - mu) / sd).astype(np.float32)
+    mu, sd = channel_stats(X, tr, axes)
+
+    def split_array(idx):
+        """Bolmeyi belleğe alir ve yerinde normalize eder (ek kopya yok)."""
+        A = np.asarray(X[idx], dtype=np.float32)
+        A -= mu
+        A /= sd
+        return A
+
+    Xtr, Xva, Xte = split_array(tr), split_array(va), split_array(te)
+    xshape = (len(X),) + tuple(Xtr.shape[1:])
 
     counts = np.bincount(y[tr], minlength=2)
     if counts.min() == 0:
@@ -116,14 +145,14 @@ def main():
     w = torch.tensor(counts.sum() / (2 * counts), dtype=torch.float32).to(dev)
     loss_fn = nn.CrossEntropyLoss(weight=w)
 
-    model = (CNN1D() if a.model == "cnn1d" else CNN2D(in_ch=X.shape[1])).to(dev)
+    model = (CNN1D() if a.model == "cnn1d" else CNN2D(in_ch=Xtr.shape[1])).to(dev)
     n_params = sum(p.numel() for p in model.parameters())
     opt = torch.optim.Adam(model.parameters(), lr=a.lr)
-    print(f"{tag}: {n_params:,} parametre, cihaz {dev}, X {X.shape}, seed {a.seed}")
+    print(f"{tag}: {n_params:,} parametre, cihaz {dev}, X {xshape}, seed {a.seed}")
 
-    tr_ld = make_loader(X[tr], y[tr], a.bs, True, drop_last=len(tr) > a.bs)
-    va_ld = make_loader(X[va], y[va], a.bs, False)
-    te_ld = make_loader(X[te], y[te], a.bs, False)
+    tr_ld = make_loader(Xtr, y[tr], a.bs, True, drop_last=len(tr) > a.bs)
+    va_ld = make_loader(Xva, y[va], a.bs, False)
+    te_ld = make_loader(Xte, y[te], a.bs, False)
 
     best, best_ep, wait = float("inf"), 0, 0
     ckpt = os.path.join(a.out_dir, f"{tag}_best.pt")
@@ -161,7 +190,7 @@ def main():
         "acc": float(accuracy_score(t_y, pred)),
         "f1": float(f1_score(t_y, pred, zero_division=0)),
         "auc": float(auc),
-        "latency_ms": float(latency_ms(model, X[te])),
+        "latency_ms": float(latency_ms(model, Xte)),
         "n_params": int(n_params),
         "best_epoch": int(best_ep),
         "tn": int(tn), "fp": int(fp), "fn": int(fn), "tp": int(tp),
