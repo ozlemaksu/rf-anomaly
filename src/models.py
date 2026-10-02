@@ -2,7 +2,7 @@ import torch.nn as nn
 
 
 class CNN1D(nn.Module):
-    """Ham IQ girdisi: (N, 2, L). AdaptiveAvgPool sayesinde L'den bağımsız."""
+    """Ham IQ girdisi: (N, 2, L). AdaptiveAvgPool sayesinde L'den bagimsiz (L >= 16)."""
 
     def __init__(self, n_classes=2, base=32, dropout=0.3):
         super().__init__()
@@ -31,7 +31,7 @@ class CNN1D(nn.Module):
 
 
 class CNN2D(nn.Module):
-    """Spektrogram girdisi: (N, C, F, T). Boyuttan bağımsız."""
+    """Spektrogram girdisi: (N, C, F, T). Boyuttan bagimsiz (F, T >= 16)."""
 
     def __init__(self, in_ch=1, n_classes=2, base=16, dropout=0.3):
         super().__init__()
