@@ -1,1 +1,99 @@
-# rf-anomaly
+# RF Anomali Tespiti: LTE altında gizlenmiş DSSS yayını
+
+ICARUS veri setiyle, ham IQ ve spektrogram girdili iki CNN'i klasik bir enerji eşiğiyle karşılaştırıyoruz.
+Çekirdek soru: **ham IQ mu, DSP ile işlenmiş zaman-frekans temsili mi daha iyi?**
+
+## Kurulum
+
+```powershell
+pip install torch numpy pandas scikit-learn scipy
+```
+
+## Kim hangi dosyadan sorumlu
+
+| Rol | Dosyalar | Teslim ettiği çıktı |
+| --- | --- | --- |
+| A, DSP | `src/preprocess.py` | `X_iq.npy`, `X_spec.npy`, `file_id.npy` |
+| B, Model | `src/models.py`, `src/train.py`, `src/run_seeds.py`, `src/baseline_energy.py` | `results/*_metrics.json`, `results/*_test_preds.csv`, `results/comparison.md` |
+| C, Veri + değerlendirme + arayüz | `src/datasets.py`, `src/evaluate.py`, `app/demo.py` | `y.npy`, `splits.npz`, grafikler, demo |
+
+Ortak yardımcılar (kimse düzenlemez, sorun varsa konuşulur): `src/check_data.py`, `src/make_fake_data.py`, `src/smoke_test.py`.
+
+## Veri sözleşmesi
+
+Tüm dosyalar `data/` klasöründe durur (Git'e girmez, Drive'dan paylaşılır).
+
+| Dosya | Şekil | Tip | İçerik | Kim üretir |
+| --- | --- | --- | --- | --- |
+| `X_iq.npy` | `(N, 2, L)` | float32 | I ve Q kanalları, her pencere bir örnek | A |
+| `X_spec.npy` | `(N, 1, F, T)` | float32 | STFT genlik spektrogramı (dB), aynı pencerelerin aynı sırada | A |
+| `file_id.npy` | `(N,)` | int | pencerenin geldiği kayıt dosyası | A |
+| `y.npy` | `(N,)` | int | 0 = yalnız LTE, 1 = LTE + DSSS | C |
+| `splits.npz` | `train_idx`, `val_idx`, `test_idx` | int | **dosya bazında** bölme | C |
+| `sir_db.npy` | `(N,)` | float | opsiyonel, SIR'a göre analiz için (LTE-only için NaN) | A |
+
+`L`, `F` ve `T` en az 16 olmalı. `X_iq` ile `X_spec` aynı N'ye ve aynı pencere sırasına sahip olmalı.
+
+**Teslimden önce herkes çalıştırır:**
+
+```powershell
+python src/check_data.py --dir data
+```
+
+Çıktı `[HATA]` içeriyorsa veri teslim edilmez. Araç NaN, yanlış şekil, çakışan bölmeler,
+aynı dosyadan pencerelerin farklı setlere düşmesi (sızıntı) ve birebir kopya pencereleri yakalar.
+
+## Çalıştırma sırası
+
+```powershell
+# 0. Gerçek veri gelmeden önce, kod hazır mı? (hepsi OK olmalı)
+python src/smoke_test.py
+
+# 1. Gerçek veri geldiğinde
+python src/check_data.py --dir data
+
+# 2. Klasik baseline (tablonun ilk satırı)
+python src/baseline_energy.py --x data/X_iq.npy --y data/y.npy --splits data/splits.npz
+
+# 3. İki CNN, her biri 3 seed
+python src/run_seeds.py --model cnn1d --x data/X_iq.npy   --y data/y.npy --splits data/splits.npz
+python src/run_seeds.py --model cnn2d --x data/X_spec.npy --y data/y.npy --splits data/splits.npz
+
+# 4. Sunum tablosu: results/comparison.md
+python src/run_seeds.py --table
+```
+
+Gerçek veride ilk iş **aşırı öğrenme testi**: model 32 örneği ezberleyemiyorsa mimaride veya veri hazırlığında hata vardır.
+
+```powershell
+python src/train.py --model cnn1d --x data/X_iq.npy --y data/y.npy --splits data/splits.npz --subset 32 --epochs 80 --patience 1000 --tag overfit
+```
+
+`train_loss` sıfıra yaklaşmalı.
+
+## Değişmez kurallar
+
+1. **Bölme dosya bazında.** Aynı kayıt dosyasından çıkan pencereler tek sette kalır. `splits.npz` bir kez sabitlenir, hafta boyunca değişmez.
+2. **Test setine bakılarak ayar yapılmaz.** Hiperparametre ve eşik seçimi yalnızca val setinde yapılır.
+3. **Normalizasyon istatistiği yalnızca eğitim setinden** hesaplanır (`train.py` bunu yapar).
+4. **Rastgelelik tohumu sabit.** Sonuçlar 3 seed'in ortalaması ± standart sapması olarak raporlanır.
+5. **`make_fake_data.py` yalnızca kod sınamak içindir.** Sahte veriden çıkan rakamlar sunuma girmez.
+6. **Çok yüksek doğruluk (%99+) görürseniz önce sızıntıyı arayın**, sonra sevinin: `check_data.py`'yi tekrar çalıştırın.
+
+## Sunumda dürüstçe söylenecek sınırlar
+
+- OTA-Cellular modülünde gerçek ortamdan yakalanan LTE'ye **sentetik DSSS eklenmiştir**.
+- Sistem yalnızca DSSS'i tanır; bilinmeyen sinyal türlerindeki davranış ölçülmemiştir (denetimsiz anomali tespiti sonraki aşama).
+
+## Git akışı
+
+```powershell
+git checkout -b <dal-adi>     # dsp-onisleme | model-egitim | degerlendirme-demo
+git add .
+git commit -m "ne yaptiniz"
+git push origin <dal-adi>
+# GitHub'da Pull Request açıp main'e birleştirin; main'e doğrudan push yok.
+git pull origin main          # günde birkaç kez
+```
+
+`data/`, `*.npy`, `*.pt`, `*.pth` `.gitignore`'dadır; veri ve model ağırlıkları Git'e girmez.
