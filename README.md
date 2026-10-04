@@ -131,7 +131,13 @@ python ml/train.py --model cnn1d --x data/X_iq.npy --y data/y.npy --splits data/
 
 ## Veri ve atıf
 
-Veri: ICARUS Synthetic (MATLAB_Dataset; OTA-Cellular modülünde gerçek ortamdan yakalanan LTE'ye sentetik DSSS eklenmiştir). Ham veri bu repoda **yoktur**; veri setinin sahibine ait lisans ve atıf koşullarını kullanmadan önce kontrol edin. Repoda yalnızca türetilmiş sonuçlar, split bilgisi ve model ağırlıkları bulunur.
+Veri: **ICARUS** veri seti (Genesys Lab, Northeastern Üniversitesi; <https://genesys-lab.org/ICARUS>). Synthetic modülü kullanıldı: OTA-Cellular modülünde gerçek ortamdan yakalanan LTE'ye sentetik DSSS eklenmiştir. Veri setinin sayfasında açık bir lisans metni yoktur; yalnızca yayın yapılırsa aşağıdaki makaleye atıf istenir. **Ham veri ve türetilmiş spektrogramlar bu repoda yoktur**; yalnızca kod, split bilgisi, model ağırlıkları, sonuçlar ve birkaç örnek görsel vardır.
+
+Atıf:
+
+> D. Roy, V. Chaudhury, C. Tassie, C. Spooner, and K. R. Chowdhury, "ICARUS: Learning on IQ and Cycle Frequencies for Detecting Anomalous RF Underlay Signals," IEEE INFOCOM 2023, New York Area, USA, May 2023.
+
+Bu proje ICARUS ekibiyle bağlantılı veya onlar tarafından onaylanmış değildir.
 
 ## Dashboard
 
