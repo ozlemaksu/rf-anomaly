@@ -1,5 +1,11 @@
 # RF Anomali Tespiti: LTE altında gizlenmiş DSSS yayını
 
+> **Özet:** LTE sinyalinin altına gizlenmiş zayıf bir DSSS yayınını ham IQ (1D CNN) ve spektrogram (2D CNN) girdileriyle tespit ediyoruz. Kayıt bazlı bölme, validation'da seçilen eşik ve 3 seed ile ölçülen test sonucu: **1D CNN %97.5 ± 2.9 doğruluk (3 seed ensemble %99.2)**, klasik enerji eşiği %78.3. Hatalar zor koşullarda toplanıyor (SNR 0 dB, SIR 10 dB). Veri sentetiktir ve test seti küçüktür (60 kayıt): sonuçlar kontrollü bir deneydir, gerçek dünya başarısı iddiası değildir.
+
+![Örnek spektrogramlar](docs/spectrogram_ornekleri.png)
+
+*Sağdaki örnek (SNR 0 dB, SIR 10 dB) DSSS'in en zayıf olduğu zor durumdur: gözle bile ayırt etmek güçtür.*
+
 ICARUS veri setiyle, ham IQ ve spektrogram girdili iki CNN'i klasik bir enerji eşiğiyle karşılaştırıyoruz.
 Çekirdek soru: **ham IQ mu, DSP ile işlenmiş zaman-frekans temsili mi daha iyi?**
 
@@ -24,7 +30,7 @@ dashboard/  C: arayüz (demo.py)
 
 1632 spektrogram `.npy` dosyası (~856 MB) boyutu nedeniyle `main`'e konmadı; `dsp` dalında (`outputs/datasets/ml_handoff/spectrograms/`) durur. **`dsp` dalı silinmemelidir.**
 
-Komutlar repo kökünden çalıştırılır (`python ml/train.py ...`). DSP betikleri `dsp/` içinden kendi yollarıyla çalışır; bazı yollar yerel makineye (Windows) sabittir.
+Komutlar repo kökünden çalıştırılır (`python ml/train.py ...`). DSP betikleri varsayılan olarak `dsp/` klasörünü proje kökü sayar; ham veri yollarını ortam değişkenleriyle verin: `RF_IQ_DIR` (IQ dosyaları), `RF_META_DIR` (Metadata CSV'leri), isteğe bağlı `RF_PROJECT_ROOT`. Örnek: `RF_IQ_DIR=/veri/IQ RF_META_DIR=/veri/Metadata python dsp/src/dsp/build_ml_dataset.py`.
 
 ## Kim hangi dosyadan sorumlu
 
@@ -107,6 +113,8 @@ python ml/train.py --model cnn1d --x data/X_iq.npy --y data/y.npy --splits data/
 | CNN1D, 3 seed ort. ± std | 0.975 ± 0.029 | 0.982 ± 0.021 | 0.9998 | 0.0 | 6.0 ± 7.0 |
 | CNN1D, 3 seed ensemble | 0.992 | 0.994 | 0.9997 | 0 | 2 |
 
+![Karışıklık matrisleri](docs/karisiklik_matrisleri.png)
+
 - Ensemble = üç seed'in `p_anomaly` ortalaması, eşik 0.5; test üzerinde seçim yapılmadı. Hesap: `python ml/make_final_tables.py`.
 - Kayıt bazlı bootstrap %95 GA (ensemble doğruluk): CNN1D [0.975, 1.000], CNN2D [0.829, 0.954], baseline [0.683, 0.875].
 - Hatalar: tüm yanlış alarmlar OnlyLTE + SNR 0 dB; tüm kaçırmalar LTE+DSSS + SIR 10 dB.
@@ -120,6 +128,14 @@ python ml/train.py --model cnn1d --x data/X_iq.npy --y data/y.npy --splits data/
 - **Baseline eşiği** (1.2356) yalnızca **val** setinde F1'i en büyük yapan değerdir (`ml/baseline_energy.py`).
 - **Model ağırlıkları:** `ml/weights/` (resmi koşu results_v2: cnn1d_s1–s3, cnn2d_s1–s3, ~1.8 MB). Yedek: Drive `rf-anomaly-data/results_v2/`.
 - **Gecikme** yalnızca model çıkarımıdır (STFT hariç, Colab CPU, batch = 1; işlemci modeli kayıtlı değil).
+
+## Veri ve atıf
+
+Veri: ICARUS Synthetic (MATLAB_Dataset; OTA-Cellular modülünde gerçek ortamdan yakalanan LTE'ye sentetik DSSS eklenmiştir). Ham veri bu repoda **yoktur**; veri setinin sahibine ait lisans ve atıf koşullarını kullanmadan önce kontrol edin. Repoda yalnızca türetilmiş sonuçlar, split bilgisi ve model ağırlıkları bulunur.
+
+## Dashboard
+
+`dashboard/` klasörü sonuçları gösteren Streamlit arayüzünü içerir (`streamlit run dashboard/<dosya>.py`). Gösterilen sayılar `ml/results/` dosyalarından gelir.
 
 ## Sunumda dürüstçe söylenecek sınırlar
 
