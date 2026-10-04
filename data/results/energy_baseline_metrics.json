@@ -1,0 +1,23 @@
+{
+  "model": "Energy Threshold",
+  "threshold": 1.2531557083129883,
+  "validation_f1": 0.8616187989556136,
+  "test_accuracy": 0.775,
+  "test_precision": 0.7990196078431373,
+  "test_recall": 0.9261363636363636,
+  "test_f1": 0.8578947368421053,
+  "test_roc_auc": 0.7568359375,
+  "confusion_matrix": [
+    [
+      23,
+      41
+    ],
+    [
+      13,
+      163
+    ]
+  ],
+  "train_windows": 1144,
+  "val_windows": 248,
+  "test_windows": 240
+}
