@@ -216,11 +216,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
-
+/data/
 *.npy
 *.pt
 !ml/weights/*.pt
 *.pth
 ml/results/smoke/
 *.pyc
-*.npz

@@ -25,7 +25,7 @@ dsp/        A + Mert: DSP ve SCF çalışması (dalı `dsp` ile aynı içerik, s
 ml/         B: modeller, eğitim, baseline, değerlendirme, ML verisi üretimi (preprocess.py)
   weights/    resmi model ağırlıkları (*_best.pt)
   results/    v2/ (seed başına), ensemble/, final_results.md, split_check.txt
-dashboard/  C: arayüz (demo.py)
+dashboard/  C: Streamlit arayüzü (demo.py), data/ (görseller, sonuç dosyaları), scripts/ (veri hazırlama ve kontrol betikleri)
 ```
 
 1632 spektrogram `.npy` dosyası (~856 MB) boyutu nedeniyle `main`'e konmadı; `dsp` dalında (`outputs/datasets/ml_handoff/spectrograms/`) durur. **`dsp` dalı silinmemelidir.**
@@ -135,7 +135,14 @@ Veri: ICARUS Synthetic (MATLAB_Dataset; OTA-Cellular modülünde gerçek ortamda
 
 ## Dashboard
 
-`dashboard/` klasörü sonuçları gösteren Streamlit arayüzünü içerir (`streamlit run dashboard/<dosya>.py`). Gösterilen sayılar `ml/results/` dosyalarından gelir.
+Sonuçları gösteren Streamlit arayüzü: `dashboard/demo.py` (görseller ve sonuç dosyaları `dashboard/data/`, veri hazırlama betikleri `dashboard/scripts/`). Repo kökünden:
+
+```powershell
+pip install -r dashboard/requirements.txt
+streamlit run dashboard/demo.py
+```
+
+Gösterilen resmi sayılar `ml/results/` ile aynıdır. Baseline için iki çalıştırma vardır: resmi kayıt (eşik 1.2356, doğruluk 0.783) ve `dashboard/scripts/energy_baseline.py` ile bağımsız yeniden çalıştırma (eşik 1.2532, doğruluk 0.775); ROC-AUC her ikisinde 0.7568, fark yalnızca eşik aramasından gelir.
 
 ## Sunumda dürüstçe söylenecek sınırlar
 
