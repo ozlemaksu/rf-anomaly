@@ -2,6 +2,8 @@
 
 > **Özet:** LTE sinyalinin altına gizlenmiş zayıf bir DSSS yayınını ham IQ (1D CNN) ve spektrogram (2D CNN) girdileriyle tespit ediyoruz. Kayıt bazlı bölme, validation'da seçilen eşik ve 3 seed ile ölçülen test sonucu: **1D CNN %97.5 ± 2.9 doğruluk (3 seed ensemble %99.2)**, klasik enerji eşiği %78.3. Hatalar zor koşullarda toplanıyor (SNR 0 dB, SIR 10 dB). Veri sentetiktir ve test seti küçüktür (60 kayıt): sonuçlar kontrollü bir deneydir, gerçek dünya başarısı iddiası değildir.
 
+**Canlı demo:** <https://rf-anomaly-tespit.streamlit.app/>
+
 ![Örnek spektrogramlar](docs/spectrogram_ornekleri.png)
 
 *Sağdaki örnek (SNR 0 dB, SIR 10 dB) DSSS'in en zayıf olduğu zor durumdur: gözle bile ayırt etmek güçtür.*
@@ -140,6 +142,8 @@ Atıf:
 Bu proje ICARUS ekibiyle bağlantılı veya onlar tarafından onaylanmış değildir.
 
 ## Dashboard
+
+Canlı demo: <https://rf-anomaly-tespit.streamlit.app/> (uzun süre kullanılmazsa uykuya geçer; açılırken "Wake up" butonuna basmak gerekebilir).
 
 Sonuçları gösteren Streamlit arayüzü: `dashboard/demo.py` (görseller ve sonuç dosyaları `dashboard/data/`, veri hazırlama betikleri `dashboard/scripts/`). Repo kökünden:
 
