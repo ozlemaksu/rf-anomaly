@@ -5,6 +5,11 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 DATA = HERE / "data"
+RESULTS = DATA / "results"
+
+st.set_page_config(
+    page_title="RF Anomali Tespit Sistemi",
+    page_icon="📡",
     layout="wide"
 )
 
