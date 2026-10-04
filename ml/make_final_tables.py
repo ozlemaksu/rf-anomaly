@@ -1,7 +1,7 @@
 import pandas as pd, numpy as np, json
 from sklearn.metrics import roc_auc_score, f1_score
-R='results/v2/'
-m=pd.read_csv('results/test_idx_frame_mapping.csv')
+R='ml/results/v2/'
+m=pd.read_csv('ml/results/test_idx_frame_mapping.csv')
 y=m.label.values; files=m.file.values
 def load(mod): return np.array([pd.read_csv(f'{R}{mod}_s{s}_test_preds.csv').p_anomaly.values for s in (1,2,3)])
 P1,P2=load('cnn1d'),load('cnn2d')
@@ -43,4 +43,4 @@ lines+=['','## Hata kırılımı: LTE+DSSS ve SIR\n','| SIR (dB) | LTE+DSSS penc
 c=m[m.label==1]
 for s,d in c.groupby('sir_db'): lines.append(f'| {s:g} | {len(d)} | {d.e1.sum()} | {d.e2.sum()} | {d.eb.sum()} |')
 lines+=['','## Model boyutu ve CPU gecikmesi (Colab CPU, batch=1, model only)\n','| Model | Parametre | CPU ms/örnek |','|---|---|---|','| CNN1D | 85,730 | 145.5 ± 17.2 |','| CNN2D | 60,706 | 92.4 ± 0.3 |','| Enerji eşiği | 0 | 2.0 |']
-open('results/final_results.md','w',encoding='utf-8').write('\n'.join(lines)); print('\n'.join(lines))
+open('ml/results/final_results.md','w',encoding='utf-8').write('\n'.join(lines)); print('\n'.join(lines))

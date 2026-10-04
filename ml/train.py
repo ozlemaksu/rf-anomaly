@@ -1,13 +1,13 @@
 """Egitim betigi (B rolu).
 
 Ornekler (repo kokunden):
-    python src/train.py --model cnn1d --x data/X_iq.npy   --y data/y.npy --splits data/splits.npz
-    python src/train.py --model cnn2d --x data/X_spec.npy --y data/y.npy --splits data/splits.npz
+    python ml/train.py --model cnn1d --x data/X_iq.npy   --y data/y.npy --splits data/splits.npz
+    python ml/train.py --model cnn2d --x data/X_spec.npy --y data/y.npy --splits data/splits.npz
 
 Asiri ogrenme testi (egitim kaybi sifira yaklasmali, yoksa mimaride/veride sorun var):
-    python src/train.py --model cnn1d --x ... --y ... --splits ... --subset 32 --patience 100
+    python ml/train.py --model cnn1d --x ... --y ... --splits ... --subset 32 --patience 100
 
-Ciktilar (--out_dir, varsayilan results/):
+Ciktilar (--out_dir, varsayilan ml/results/):
     <tag>_best.pt            en iyi val kaybindaki agirliklar
     <tag>_metrics.json       test metrikleri (acc, F1, AUC, gecikme, parametre sayisi, karisiklik matrisi)
     <tag>_test_preds.csv     idx, y_true, p_anomaly  (C kisisi grafikleri bundan cizer)
@@ -85,7 +85,7 @@ def main():
     p.add_argument("--patience", type=int, default=6)
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--subset", type=int, default=0, help="yalnizca ilk N egitim ornegi (asiri ogrenme testi)")
-    p.add_argument("--out_dir", default="results")
+    p.add_argument("--out_dir", default="ml/results")
     p.add_argument("--tag", default="", help="cikti dosya oneki (varsayilan: model adi)")
     a = p.parse_args()
 
@@ -112,7 +112,7 @@ def main():
         raise SystemExit(f"X ({len(X)}) ve y ({len(y)}) ornek sayisi farkli")
     for name, idx in (("train", tr), ("val", va), ("test", te)):
         if len(idx) == 0 or idx.min() < 0 or idx.max() >= len(X):
-            raise SystemExit(f"{name}_idx bos veya aralik disi. Once: python src/check_data.py")
+            raise SystemExit(f"{name}_idx bos veya aralik disi. Once: python ml/check_data.py")
 
     if a.subset:
         # Sinif dengeli rastgele alt kume (indeksler dosya sirasina gore dizili, ilk N hep tek sinif olabilir)

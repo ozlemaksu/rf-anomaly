@@ -1,10 +1,10 @@
 """Bir modeli birden fazla seed ile calistirir, ortalama +- std uretir; karsilastirma tablosunu yazar.
 
 Calistirma:
-    python src/run_seeds.py --model cnn1d --x data/X_iq.npy   --y data/y.npy --splits data/splits.npz
-    python src/run_seeds.py --model cnn2d --x data/X_spec.npy --y data/y.npy --splits data/splits.npz
-    python src/baseline_energy.py --x data/X_iq.npy --y data/y.npy --splits data/splits.npz
-    python src/run_seeds.py --table            # results/comparison.md (sunumdaki tablo)
+    python ml/run_seeds.py --model cnn1d --x data/X_iq.npy   --y data/y.npy --splits data/splits.npz
+    python ml/run_seeds.py --model cnn2d --x data/X_spec.npy --y data/y.npy --splits data/splits.npz
+    python ml/baseline_energy.py --x data/X_iq.npy --y data/y.npy --splits data/splits.npz
+    python ml/run_seeds.py --table            # ml/results/comparison.md (sunumdaki tablo)
 
 Her seed ayri dosyaya yazilir (<model>_s<seed>_metrics.json), birbirinin uzerine yazmaz.
 """
@@ -95,7 +95,7 @@ def main():
     p.add_argument("--bs", type=int, default=64)
     p.add_argument("--lr", type=float, default=1e-3)
     p.add_argument("--patience", type=int, default=6)
-    p.add_argument("--out_dir", default="results")
+    p.add_argument("--out_dir", default="ml/results")
     a = p.parse_args()
 
     os.makedirs(a.out_dir, exist_ok=True)

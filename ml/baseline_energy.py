@@ -7,7 +7,7 @@ Val AUC'si 0.5'ten kucukse yon DEGISTIRILMEZ, yalnizca uyari yazilir
 (80-100 ornekli val setine bakarak yon secmek sizinti gibi calisir).
 
 Ornek:
-    python src/baseline_energy.py --x data/X_iq.npy --y data/y.npy --splits data/splits.npz
+    python ml/baseline_energy.py --x data/X_iq.npy --y data/y.npy --splits data/splits.npz
 """
 import argparse
 import json
@@ -40,7 +40,7 @@ def main():
     p.add_argument("--x", required=True)
     p.add_argument("--y", required=True)
     p.add_argument("--splits", required=True)
-    p.add_argument("--out_dir", default="results")
+    p.add_argument("--out_dir", default="ml/results")
     p.add_argument("--tag", default="baseline_energy")
     a = p.parse_args()
 

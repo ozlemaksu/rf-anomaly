@@ -1,7 +1,7 @@
 """A rolu: ICARUS Synthetic (MATLAB_Dataset) ham dosyalarindan egitim verisini uretir.
 
 Calistirma (repo kokunden):
-    python src/preprocess.py --root data/ham/sentetik/MATLAB_Dataset --out data
+    python dsp/preprocess.py --root data/ham/sentetik/MATLAB_Dataset --out data
 
 Dosya formati (gercek veride dogrulandi):
     8 bayt baslik = iki int32 [2, N]   (N = karmasik ornek sayisi)
@@ -135,7 +135,7 @@ def main():
     np.save(os.path.join(a.out, "fs_hz.npy"), fs)
     ftab.to_csv(os.path.join(a.out, "file_index.csv"), index=False)
     print(f"Bitti. LTE penceresi {int((y == 0).sum())}, LTE+DSSS penceresi {int((y == 1).sum())}.")
-    print("Sonraki adim: python src/make_splits.py --dir", a.out)
+    print("Sonraki adim: python ml/make_splits.py --dir", a.out)
 
 
 if __name__ == "__main__":
