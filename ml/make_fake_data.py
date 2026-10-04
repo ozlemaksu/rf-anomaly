@@ -5,7 +5,7 @@ UYARI: Bu veri YALNIZCA kodu sinamak icindir. Buradan cikan dogruluk
 rakamlari bilimsel sonuc degildir, sunumda kullanilmaz.
 
 Ornek:
-    python src/make_fake_data.py --out data/fake
+    python ml/make_fake_data.py --out data/fake
 """
 import argparse
 import os

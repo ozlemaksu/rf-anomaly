@@ -9,15 +9,27 @@ ICARUS veri setiyle, ham IQ ve spektrogram girdili iki CNN'i klasik bir enerji e
 pip install torch numpy pandas scikit-learn scipy
 ```
 
+## Klasör yapısı
+
+```
+dsp/        A: ham IQ -> spektrogram (preprocess.py, stft/pipeline/fft)
+ml/         B: modeller, eğitim, baseline, değerlendirme
+  weights/    resmi model ağırlıkları (*_best.pt)
+  results/    v2/ (seed başına), ensemble/, final_results.md, split_check.txt
+dashboard/  C: arayüz (demo.py)
+```
+
+Tüm komutlar repo kökünden çalıştırılır (`python ml/train.py ...`, `python dsp/preprocess.py ...`).
+
 ## Kim hangi dosyadan sorumlu
 
 | Rol | Dosyalar | Teslim ettiği çıktı |
 | --- | --- | --- |
-| A, DSP | `src/preprocess.py` | `X_iq.npy`, `X_spec.npy`, `file_id.npy` |
-| B, Model | `src/models.py`, `src/train.py`, `src/run_seeds.py`, `src/baseline_energy.py` | `results/*_metrics.json`, `results/*_test_preds.csv`, `results/comparison.md` |
-| C, Veri + değerlendirme + arayüz | `src/datasets.py`, `src/evaluate.py`, `app/demo.py` | `y.npy`, `splits.npz`, grafikler, demo |
+| A, DSP | `dsp/preprocess.py` | `X_iq.npy`, `X_spec.npy`, `file_id.npy` |
+| B, Model | `ml/models.py`, `ml/train.py`, `ml/run_seeds.py`, `ml/baseline_energy.py` | `ml/results/*_metrics.json`, `ml/results/*_test_preds.csv`, `ml/results/comparison.md` |
+| C, Veri + değerlendirme + arayüz | `ml/datasets.py`, `ml/evaluate.py`, `dashboard/demo.py` | `y.npy`, `splits.npz`, grafikler, demo |
 
-Ortak yardımcılar (kimse düzenlemez, sorun varsa konuşulur): `src/check_data.py`, `src/make_fake_data.py`, `src/smoke_test.py`.
+Ortak yardımcılar (kimse düzenlemez, sorun varsa konuşulur): `ml/check_data.py`, `ml/make_fake_data.py`, `ml/smoke_test.py`.
 
 ## Veri sözleşmesi
 
@@ -37,7 +49,7 @@ Tüm dosyalar `data/` klasöründe durur (Git'e girmez, Drive'dan paylaşılır)
 **Teslimden önce herkes çalıştırır:**
 
 ```powershell
-python src/check_data.py --dir data
+python ml/check_data.py --dir data
 ```
 
 Çıktı `[HATA]` içeriyorsa veri teslim edilmez. Araç NaN, yanlış şekil, çakışan bölmeler,
@@ -47,26 +59,26 @@ aynı dosyadan pencerelerin farklı setlere düşmesi (sızıntı) ve birebir ko
 
 ```powershell
 # 0. Gerçek veri gelmeden önce, kod hazır mı? (hepsi OK olmalı)
-python src/smoke_test.py
+python ml/smoke_test.py
 
 # 1. Gerçek veri geldiğinde
-python src/check_data.py --dir data
+python ml/check_data.py --dir data
 
 # 2. Klasik baseline (tablonun ilk satırı)
-python src/baseline_energy.py --x data/X_iq.npy --y data/y.npy --splits data/splits.npz
+python ml/baseline_energy.py --x data/X_iq.npy --y data/y.npy --splits data/splits.npz
 
 # 3. İki CNN, her biri 3 seed
-python src/run_seeds.py --model cnn1d --x data/X_iq.npy   --y data/y.npy --splits data/splits.npz
-python src/run_seeds.py --model cnn2d --x data/X_spec.npy --y data/y.npy --splits data/splits.npz
+python ml/run_seeds.py --model cnn1d --x data/X_iq.npy   --y data/y.npy --splits data/splits.npz
+python ml/run_seeds.py --model cnn2d --x data/X_spec.npy --y data/y.npy --splits data/splits.npz
 
 # 4. Sunum tablosu: results/comparison.md
-python src/run_seeds.py --table
+python ml/run_seeds.py --table
 ```
 
 Gerçek veride ilk iş **aşırı öğrenme testi**: model 32 örneği ezberleyemiyorsa mimaride veya veri hazırlığında hata vardır.
 
 ```powershell
-python src/train.py --model cnn1d --x data/X_iq.npy --y data/y.npy --splits data/splits.npz --subset 32 --epochs 80 --patience 1000 --tag overfit
+python ml/train.py --model cnn1d --x data/X_iq.npy --y data/y.npy --splits data/splits.npz --subset 32 --epochs 80 --patience 1000 --tag overfit
 ```
 
 `train_loss` sıfıra yaklaşmalı.
@@ -90,18 +102,18 @@ python src/train.py --model cnn1d --x data/X_iq.npy --y data/y.npy --splits data
 | CNN1D, 3 seed ort. ± std | 0.975 ± 0.029 | 0.982 ± 0.021 | 0.9998 | 0.0 | 6.0 ± 7.0 |
 | CNN1D, 3 seed ensemble | 0.992 | 0.994 | 0.9997 | 0 | 2 |
 
-- Ensemble = üç seed'in `p_anomaly` ortalaması, eşik 0.5; test üzerinde seçim yapılmadı. Hesap: `python src/make_final_tables.py`.
+- Ensemble = üç seed'in `p_anomaly` ortalaması, eşik 0.5; test üzerinde seçim yapılmadı. Hesap: `python ml/make_final_tables.py`.
 - Kayıt bazlı bootstrap %95 GA (ensemble doğruluk): CNN1D [0.975, 1.000], CNN2D [0.829, 0.954], baseline [0.683, 0.875].
 - Hatalar: tüm yanlış alarmlar OnlyLTE + SNR 0 dB; tüm kaçırmalar LTE+DSSS + SIR 10 dB.
-- Ayrıntılı tablolar: `results/final_results.md`. Ham tahminler ve metrikler: `results/v2/` (seed başına) ve `results/ensemble/`.
-- Resmi koşu `results/v2`dir. Eski bölmeyle (1136/248/248) yapılan koşular kullanılmaz.
+- Ayrıntılı tablolar: `ml/results/final_results.md`. Ham tahminler ve metrikler: `ml/results/v2/` (seed başına) ve `ml/results/ensemble/`.
+- Resmi koşu `ml/results/v2`dir. Eski bölmeyle (1136/248/248) yapılan koşular kullanılmaz.
 
 ## Yeniden üretilebilirlik
 
-- **Split:** `splits.npz` (train/val/test = 1144/248/240 pencere = 286/62/60 kayıt; MD5 `97454098d71feffae1eac57a6c3dfb11`). Kayıt kümelerinin kesişimi boş (`results/split_check.txt`).
-- **Hiperparametreler** (`src/train.py` varsayılanları): Adam, lr 1e-3, batch 64, en çok 40 epoch, early stopping patience 6 (**validation loss**), eşik 0.5, sınıf ağırlıklı çapraz entropi; seed 1, 2, 3. En iyi epoch'lar (metrics.json): CNN1D 39/31/9, CNN2D 35/32/34.
-- **Baseline eşiği** (1.2356) yalnızca **val** setinde F1'i en büyük yapan değerdir (`src/baseline_energy.py`).
-- **Model ağırlıkları** (`*_best.pt`) Git'e girmez (`.gitignore`). Drive: `rf-anomaly-data/results_v2/`.
+- **Split:** `splits.npz` (train/val/test = 1144/248/240 pencere = 286/62/60 kayıt; MD5 `97454098d71feffae1eac57a6c3dfb11`). Kayıt kümelerinin kesişimi boş (`ml/results/split_check.txt`).
+- **Hiperparametreler** (`ml/train.py` varsayılanları): Adam, lr 1e-3, batch 64, en çok 40 epoch, early stopping patience 6 (**validation loss**), eşik 0.5, sınıf ağırlıklı çapraz entropi; seed 1, 2, 3. En iyi epoch'lar (metrics.json): CNN1D 39/31/9, CNN2D 35/32/34.
+- **Baseline eşiği** (1.2356) yalnızca **val** setinde F1'i en büyük yapan değerdir (`ml/baseline_energy.py`).
+- **Model ağırlıkları:** `ml/weights/` (resmi koşu results_v2: cnn1d_s1–s3, cnn2d_s1–s3, ~1.8 MB). Yedek: Drive `rf-anomaly-data/results_v2/`.
 - **Gecikme** yalnızca model çıkarımıdır (STFT hariç, Colab CPU, batch = 1; işlemci modeli kayıtlı değil).
 
 ## Sunumda dürüstçe söylenecek sınırlar
@@ -122,4 +134,4 @@ git push origin <dal-adi>
 git pull origin main          # günde birkaç kez
 ```
 
-`data/`, `*.npy`, `*.pt`, `*.pth` `.gitignore`'dadır; veri ve model ağırlıkları Git'e girmez.
+`data/`, `*.npy`, `*.pt`, `*.pth` `.gitignore`'dadır; yalnızca küçük, resmi ağırlıklar (`ml/weights/*.pt`) istisnadır.

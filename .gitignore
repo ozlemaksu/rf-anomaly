@@ -219,6 +219,7 @@ __marimo__/
 data/
 *.npy
 *.pt
+!ml/weights/*.pt
 *.pth
-results/smoke/
+ml/results/smoke/
 *.pyc

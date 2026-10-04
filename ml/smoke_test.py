@@ -1,6 +1,6 @@
 """Duman testi: tum boru hattini sahte veriyle bastan sona dener. Tek komut:
 
-    python src/smoke_test.py
+    python ml/smoke_test.py
 
 Adimlar: sahte veri uret -> veri kontrolu -> baseline -> 1D CNN -> 2D CNN -> asiri ogrenme -> tablo.
 Gercek veri gelmeden ONCE bir kez calistirin; hepsi [ OK ] ise kodunuz hazirdir ve
@@ -18,7 +18,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 PY = sys.executable
 FAKE = os.path.join("data", "fake")
-OUT = os.path.join("results", "smoke")
+OUT = os.path.join("ml", "results", "smoke")
 X_IQ, X_SPEC = os.path.join(FAKE, "X_iq.npy"), os.path.join(FAKE, "X_spec.npy")
 Y, SPL = os.path.join(FAKE, "y.npy"), os.path.join(FAKE, "splits.npz")
 
@@ -49,7 +49,7 @@ def main():
     except ImportError as e:
         sys.exit(f"Eksik kutuphane: {e.name}. Kurun: pip install torch numpy pandas scikit-learn scipy")
 
-    s = os.path.join("src")
+    s = os.path.join("ml")
     run("1. sahte veri uret", [PY, f"{s}/make_fake_data.py", "--out", FAKE],
         must_exist=[X_IQ, X_SPEC, Y, SPL])
     run("2. veri sozlesmesi kontrolu", [PY, f"{s}/check_data.py", "--dir", FAKE])

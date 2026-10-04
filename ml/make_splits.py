@@ -1,6 +1,6 @@
 """C rolu: DOSYA bazinda train/val/test bolmesi uretir (splits.npz). Bir kez calistirilir, sabitlenir.
 
-    python src/make_splits.py --dir data
+    python ml/make_splits.py --dir data
 
 Tabaka (strata) = sinif + SIR + ornekleme hizi; boylece her bolmede her kosuldan dosya bulunur.
 Ayni dosyanin tum pencereleri tek sette kalir (sizinti yok).

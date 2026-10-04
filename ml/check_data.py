@@ -1,8 +1,8 @@
 """Veri sozlesmesi kontrolu. A ve C veriyi teslim etmeden once, B alip kullanmadan once calistirin.
 
 Ornek:
-    python src/check_data.py --dir data
-    python src/check_data.py --dir data/fake
+    python ml/check_data.py --dir data
+    python ml/check_data.py --dir data/fake
 
 Beklenen dosyalar (--dir icinde):
     X_iq.npy      (N, 2, L)      float32   I ve Q kanallari          [A]
