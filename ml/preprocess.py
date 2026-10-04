@@ -1,7 +1,7 @@
 """A rolu: ICARUS Synthetic (MATLAB_Dataset) ham dosyalarindan egitim verisini uretir.
 
 Calistirma (repo kokunden):
-    python dsp/preprocess.py --root data/ham/sentetik/MATLAB_Dataset --out data
+    python ml/preprocess.py --root data/ham/sentetik/MATLAB_Dataset --out data
 
 Dosya formati (gercek veride dogrulandi):
     8 bayt baslik = iki int32 [2, N]   (N = karmasik ornek sayisi)

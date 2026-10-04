@@ -1,0 +1,27 @@
+{
+    "window_size": 131072,
+    "num_windows_per_recording": 4,
+    "window_function": "hann",
+    "nfft": 256,
+    "hop_length": 256,
+    "overlap": 0,
+    "boundary": null,
+    "padded": false,
+    "two_sided": true,
+    "fftshift": true,
+    "normalization": {
+        "input_db_min": -50.0,
+        "input_db_max": 0.0,
+        "output_min": 0.0,
+        "output_max": 1.0
+    },
+    "dtype": "float32",
+    "spectrogram_shape": [
+        256,
+        512
+    ],
+    "labels": {
+        "0": "OnlyLTE",
+        "1": "LTE+DSSS"
+    }
+}

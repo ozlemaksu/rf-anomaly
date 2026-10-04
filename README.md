@@ -12,20 +12,25 @@ pip install torch numpy pandas scikit-learn scipy
 ## Klasör yapısı
 
 ```
-dsp/        A: ham IQ -> spektrogram (preprocess.py, stft/pipeline/fft)
-ml/         B: modeller, eğitim, baseline, değerlendirme
+dsp/        A + Mert: DSP ve SCF çalışması (dalı `dsp` ile aynı içerik, spektrogram .npy dosyaları hariç)
+  src/dsp/    STFT, pipeline, build_ml_dataset, SCF, gap/band-ratio betikleri
+  notebooks/  veri, IQ, FFT, STFT analizleri
+  outputs/    grafikler, tablolar, datasets/ml_handoff (README, dataset_config.json, metadata.csv, dsp_findings.md)
+ml/         B: modeller, eğitim, baseline, değerlendirme, ML verisi üretimi (preprocess.py)
   weights/    resmi model ağırlıkları (*_best.pt)
   results/    v2/ (seed başına), ensemble/, final_results.md, split_check.txt
 dashboard/  C: arayüz (demo.py)
 ```
 
-Tüm komutlar repo kökünden çalıştırılır (`python ml/train.py ...`, `python dsp/preprocess.py ...`).
+1632 spektrogram `.npy` dosyası (~856 MB) boyutu nedeniyle `main`'e konmadı; `dsp` dalında (`outputs/datasets/ml_handoff/spectrograms/`) durur. **`dsp` dalı silinmemelidir.**
+
+Komutlar repo kökünden çalıştırılır (`python ml/train.py ...`). DSP betikleri `dsp/` içinden kendi yollarıyla çalışır; bazı yollar yerel makineye (Windows) sabittir.
 
 ## Kim hangi dosyadan sorumlu
 
 | Rol | Dosyalar | Teslim ettiği çıktı |
 | --- | --- | --- |
-| A, DSP | `dsp/preprocess.py` | `X_iq.npy`, `X_spec.npy`, `file_id.npy` |
+| A, DSP | `dsp/src/dsp/`, `ml/preprocess.py` (ML verisi üretimi) | `X_iq.npy`, `X_spec.npy`, `file_id.npy` |
 | B, Model | `ml/models.py`, `ml/train.py`, `ml/run_seeds.py`, `ml/baseline_energy.py` | `ml/results/*_metrics.json`, `ml/results/*_test_preds.csv`, `ml/results/comparison.md` |
 | C, Veri + değerlendirme + arayüz | `ml/datasets.py`, `ml/evaluate.py`, `dashboard/demo.py` | `y.npy`, `splits.npz`, grafikler, demo |
 
