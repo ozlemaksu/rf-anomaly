@@ -1,12 +1,13 @@
 from pathlib import Path
+import os
+
+_RF_ROOT = Path(os.environ.get("RF_PROJECT_ROOT", Path(__file__).resolve().parents[2]))  # dsp/ klasoru
 import pandas as pd
 import numpy as np
 from scipy.stats import mannwhitneyu, rankdata
 
 
-CSV_PATH = Path(
-    r"C:\Users\asus\Desktop\RF-Anomaly-Detection\outputs\scf_v4\scf_features_v4_all_30MHz.csv"
-)
+CSV_PATH = (_RF_ROOT / "outputs" / "scf_v4" / "scf_features_v4_all_30MHz.csv")
 
 
 def calculate_auc(x0, x1):

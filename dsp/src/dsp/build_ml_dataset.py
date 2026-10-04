@@ -1,4 +1,7 @@
 from pathlib import Path
+import os
+
+_RF_ROOT = Path(os.environ.get("RF_PROJECT_ROOT", Path(__file__).resolve().parents[2]))  # dsp/ klasoru
 import json
 
 import numpy as np
@@ -11,12 +14,10 @@ from .pipeline import process_iq_file
 # PATHS
 # ============================================================
 
-IQ_DIR = Path(r"C:\Users\asus\Desktop\MATLAB_Dataset\IQ")
-META_DIR = Path(r"C:\Users\asus\Desktop\MATLAB_Dataset\Metadata")
+IQ_DIR = Path(os.environ.get("RF_IQ_DIR", "MATLAB_Dataset/IQ"))
+META_DIR = Path(os.environ.get("RF_META_DIR", "MATLAB_Dataset/Metadata"))
 
-OUTPUT_DIR = Path(
-    r"C:\Users\asus\Desktop\RF-Anomaly-Detection\outputs\datasets\ml_handoff"
-)
+OUTPUT_DIR = (_RF_ROOT / "outputs" / "datasets" / "ml_handoff")
 
 SPECTROGRAM_DIR = OUTPUT_DIR / "spectrograms"
 
