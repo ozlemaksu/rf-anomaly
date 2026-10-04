@@ -1,0 +1,21 @@
+{
+  "model": "cnn2d_ensemble",
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "method": "mean of p_anomaly over seeds",
+  "threshold": 0.5,
+  "n_test": 240,
+  "acc": 0.8958333333333334,
+  "precision": 0.912568306010929,
+  "recall": 0.9488636363636364,
+  "f1": 0.9303621169916435,
+  "roc_auc": 0.9654651988636364,
+  "pr_auc": 0.9878721229545062,
+  "tn": 48,
+  "fp": 16,
+  "fn": 9,
+  "tp": 167
+}
