@@ -1,4 +1,7 @@
 from pathlib import Path
+import os
+
+_RF_ROOT = Path(os.environ.get("RF_PROJECT_ROOT", Path(__file__).resolve().parents[2]))  # dsp/ klasoru
 
 import numpy as np
 import matplotlib
@@ -7,10 +10,10 @@ import matplotlib.pyplot as plt
 from scipy.signal import stft
 
 
-IQ_DIR = Path(r"C:\Users\asus\Desktop\MATLAB_Dataset\IQ")
+IQ_DIR = Path(os.environ.get("RF_IQ_DIR", "MATLAB_Dataset/IQ"))
 NFFT = 128
 
-OUT_DIR = Path(r"C:\Users\asus\Desktop\RF-Anomaly-Detection\outputs\window_visualization") / f"nfft_{NFFT}"
+OUT_DIR = (_RF_ROOT / "outputs" / "window_visualization") / f"nfft_{NFFT}"
 
 FILE_NAME = "Combined_LTE_DSSS_frame_264"
 

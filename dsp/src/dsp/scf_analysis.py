@@ -1,15 +1,18 @@
 from pathlib import Path
+import os
+
+_RF_ROOT = Path(os.environ.get("RF_PROJECT_ROOT", Path(__file__).resolve().parents[2]))  # dsp/ klasoru
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
-PROJECT_ROOT = Path(r"C:\Users\asus\Desktop\RF-Anomaly-Detection")
+PROJECT_ROOT = _RF_ROOT
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.dsp.io import load_iq
 
 
-IQ_DIR = Path(r"C:\Users\asus\Desktop\MATLAB_Dataset\IQ")
+IQ_DIR = Path(os.environ.get("RF_IQ_DIR", "MATLAB_Dataset/IQ"))
 OUT_DIR = PROJECT_ROOT / "outputs" / "scf_analysis"
 
 FS = 7_680_000

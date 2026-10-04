@@ -1,4 +1,7 @@
 from pathlib import Path
+import os
+
+_RF_ROOT = Path(os.environ.get("RF_PROJECT_ROOT", Path(__file__).resolve().parents[2]))  # dsp/ klasoru
 import sys
 
 import numpy as np
@@ -10,22 +13,16 @@ from scipy.signal import find_peaks
 # PROJECT PATHS
 # ============================================================
 
-PROJECT_ROOT = Path(
-    r"C:\Users\asus\Desktop\RF-Anomaly-Detection"
-)
+PROJECT_ROOT = _RF_ROOT
 
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.dsp.io import load_iq
 
 
-IQ_DIR = Path(
-    r"C:\Users\asus\Desktop\MATLAB_Dataset\IQ"
-)
+IQ_DIR = Path(os.environ.get("RF_IQ_DIR", "MATLAB_Dataset/IQ"))
 
-META_DIR = Path(
-    r"C:\Users\asus\Desktop\MATLAB_Dataset\Metadata"
-)
+META_DIR = Path(os.environ.get("RF_META_DIR", "MATLAB_Dataset/Metadata"))
 
 OUT_DIR = (
     PROJECT_ROOT
