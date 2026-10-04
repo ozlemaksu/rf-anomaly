@@ -3,8 +3,8 @@ import pandas as pd
 import json
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-DATA = ROOT / "data"
+HERE = Path(__file__).resolve().parent
+DATA = HERE / "data"
 RESULTS = DATA / "results"
 
 st.set_page_config(
@@ -160,7 +160,8 @@ st.header("📊 SIR Bazlı Hata Analizi")
 
 sir = st.selectbox(
     "SIR değeri seçin",
-    [0.0, 5.0, 10.0]
+    [0.0, 5.0, 10.0],
+    index=2
 )
 
 sir_summary = pd.DataFrame({
@@ -175,6 +176,13 @@ selected_sir = sir_summary[
 
 st.dataframe(
     selected_sir,
+    use_container_width=True,
+    hide_index=True
+)
+
+st.caption("Tüm SIR değerleri (test: 76 / 44 / 56 pencere, SIR 0 / 5 / 10 dB)")
+st.dataframe(
+    sir_summary,
     use_container_width=True,
     hide_index=True
 )
@@ -264,8 +272,10 @@ if energy_file.exists():
 
     st.caption(
         "Eşik, validation setinde F1'i en yüksek yapan değer olarak seçilir "
-        "(src/baseline_energy.py). 1.2356 değeri veriyle yeniden üretilmemiş, "
-        "kayıtlı sonuç dosyasından alınmıştır."
+        "(ml/baseline_energy.py). 1.2356 değeri resmi koşunun kayıtlı sonuç dosyasından "
+        "alınmıştır (ml/results/v2). Bağımsız bir yeniden çalıştırmada "
+        "(dashboard/scripts/energy_baseline.py) eşik 1.2532, doğruluk %77.5 çıktı; "
+        "ROC-AUC aynıdır (0.7568), fark yalnızca eşik arama yönteminden gelir."
     )
 
 else:
