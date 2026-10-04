@@ -110,7 +110,7 @@ python ml/train.py --model cnn1d --x data/X_iq.npy --y data/y.npy --splits data/
 
 ## Yeniden üretilebilirlik
 
-- **Split:** `splits.npz` (train/val/test = 1144/248/240 pencere = 286/62/60 kayıt; MD5 `97454098d71feffae1eac57a6c3dfb11`). Kayıt kümelerinin kesişimi boş (`ml/results/split_check.txt`).
+- **Split:** `splits.npz` (train/val/test = 1144/248/240 pencere = 286/62/60 kayıt; MD5 `97454098d71feffae1eac57a6c3dfb11`). Dosya: `ml/splits.npz`; pencere bazında okunaklı hali: `ml/results/split.csv` (idx, kayıt, etiket, SNR, SIR, split). Kayıt kümelerinin kesişimi boş (`ml/results/split_check.txt`).
 - **Hiperparametreler** (`ml/train.py` varsayılanları): Adam, lr 1e-3, batch 64, en çok 40 epoch, early stopping patience 6 (**validation loss**), eşik 0.5, sınıf ağırlıklı çapraz entropi; seed 1, 2, 3. En iyi epoch'lar (metrics.json): CNN1D 39/31/9, CNN2D 35/32/34.
 - **Baseline eşiği** (1.2356) yalnızca **val** setinde F1'i en büyük yapan değerdir (`ml/baseline_energy.py`).
 - **Model ağırlıkları:** `ml/weights/` (resmi koşu results_v2: cnn1d_s1–s3, cnn2d_s1–s3, ~1.8 MB). Yedek: Drive `rf-anomaly-data/results_v2/`.
